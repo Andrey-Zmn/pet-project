@@ -1,0 +1,147 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam linetype ortho
+title Схема базы данных
+
+
+'TODO need add entity auth (contains token..)
+'TODO need add entity relationships (sended request..)
+
+rectangle ServiceUser #line.dotted {
+    entity User {
+        **id**: uuid
+        --
+        **first_name**: str
+        --
+        **last_name**: str
+        --
+        **email**: str, unique=True
+        --
+        **login**: str, unique=True
+        --
+        **passwd**: str
+    }
+}
+
+
+
+rectangle ServiceMoneyAccount #line.dotted {
+    entity MoneyAccountType {
+        **id**: uuid
+        --
+        **name**: str
+    }
+
+    entity MoneyAccount {
+        **id**: uuid
+        --
+        **name**: str
+        --
+        **type**: ForeignKey(MoneyAccountType)
+        --
+        **balance**: decimal
+        --
+        extended **user_id**: uuid
+    }
+}
+
+rectangle ServiceCategory #line.dotted {
+    entity MoneyCategory {
+        **id**: uuid
+        --
+        **name**: str
+        --
+        **image**: str
+        --
+        extended **user_id**: uuid
+    }
+}
+
+rectangle ServiceTransaction #line.dotted {
+    entity MoneyTransaction {
+        **id**: uuid
+        --
+        **created_at**: datetime
+        --
+        extended **user_id**: uuid
+        --
+        **money_value**: decimal
+        --
+        extended **category_id**: uuid
+        --
+        **currency**: ForeignKey(Currency)
+    }
+
+    entity TransactionDirection {
+    **id**: uuid
+    --
+    extended **from_money_account_id**: uuid, null=True
+    --
+    extended **to_money_account_id**: uuid, null=True
+    --
+    **direction**: ForeignKey(MoneyTransaction)
+    }
+
+    entity Currency {
+        **id**: uuid
+        --
+        **name**: str
+    }
+}
+
+rectangle ServiceIntegration #line.dotted {
+    entity IntegrationService {
+        **id**: uuid
+        --
+        extended **user_id**: uuid
+        --
+        **name**: str
+        --
+        **is_active**: bool
+        --
+        **vendor_extra_data**: any
+    }
+}
+
+rectangle ServicePermission #line.dotted {
+    entity Permission {
+        **id**: uuid
+        --
+        extended **user_id**: uuid
+        --
+        extended **money_account_id**: uuid
+        --
+        **read**: bool
+        --
+        **write**: bool
+        --
+        **delete**: bool
+    }
+}
+
+rectangle ServiceStatistic #line.dotted {
+    entity Cache {
+        **ANY**: any
+    }
+}
+
+MoneyAccountType -> MoneyAccount
+Currency -> MoneyTransaction
+
+note top of TransactionDirection
+    only one field
+    must be null
+    from_.. or to_..
+end note
+
+MoneyCategory <-. User
+IntegrationService <-left. User
+Permission <-. MoneyAccount
+Permission <-. User
+MoneyTransaction <-. MoneyAccount
+MoneyTransaction <-. MoneyAccount
+MoneyTransaction <-. MoneyCategory
+MoneyAccount <-. User
+TransactionDirection --> MoneyTransaction
+@enduml
