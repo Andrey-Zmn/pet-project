@@ -1,0 +1,81 @@
+@startuml
+title Схема прохождения запросов
+
+skinparam linetype ortho
+package SSO {
+    frame [NGinx]
+    frame [Autorization and etc]
+}
+
+package User {
+    frame [Данные о пользователях]
+}
+
+package Transaction {
+    frame [Транзакции]
+}
+
+package Category {
+    frame [Категории]
+}
+
+package Sheet {
+    frame [Счета]
+}
+
+
+package [Integrations_Modules] #line.dotted {
+    package Bank {
+            frame [Tinkoff]
+        
+            frame [Sber]
+    }
+    
+    
+    
+    package FNS {
+        frame [ФНС]
+    }
+    
+    
+    
+    package DOC/XLS/CSV {
+        frame [Импорты]
+    }
+}
+
+package Convert #line.dotted {
+    frame [Конвертация валют]
+}
+
+package Stat {
+    frame [Статитстика]
+}
+
+[NGinx] --> [Autorization and etc]
+
+[Autorization and etc] <--> [Данные о пользователях]
+[Autorization and etc] <--> [Транзакции]
+[Autorization and etc] <--> [Категории]
+[Autorization and etc] <--> [Статитстика]
+[Autorization and etc] <--> [Счета]
+
+
+[Данные о пользователях] --> [Транзакции]
+[Данные о пользователях] --> [Категории]
+[Данные о пользователях] --> [Счета]
+
+[Транзакции] <-- [Импорты]
+[Транзакции] <-- [ФНС]
+[Транзакции] <-- [Sber]
+[Транзакции] <-- [Tinkoff]
+
+[Категории] --> [Транзакции]
+[Транзакции] ..> [Статитстика]
+
+[Транзакции] --> [Конвертация валют]
+[Счета] --> [Конвертация валют]
+
+[Данные о пользователях] --> [ФНС]
+[Конвертация валют] --> [Autorization and etc]
+@enduml
